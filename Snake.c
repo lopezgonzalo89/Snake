@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <conio.h>
 #define V 21
 #define H 65
 #define N 100
@@ -26,9 +27,10 @@ void inicio(int *tam, char campo[V][H]);
 void Intro_Campo(char campo[V][H]);
 void Intro_Datos(char campo[V][H], int tam);
 void draw(char campo[V][H]);
-void loop(char campo[H][V], int tam);
-void input(char campo[H][V], int *tam, int *muerto);
-void input(char campo[H][V], int *tam, int *muerto);
+void loop(char campo[V][H], int tam);
+void input(char campo[V][H], int *tam, int *muerto);
+void update(char campo[V][H], int tam);
+void Intro_Datos2(char campo[V][H], int tam);
 
 int main()
 {
@@ -92,7 +94,7 @@ void Intro_Campo(char campo[V][H])
         {
             if (i == 0 || i == V - 1)
             {
-                campo[i][j] = '_';
+                campo[i][j] = '-';
             }
             else if (j == 0 || j == H - 1)
             {
@@ -111,9 +113,6 @@ void Intro_Datos(char campo[V][H], int tam)
 {
     int i;
 
-    // Cabeza de la snake
-    snake[0].imagen = 'O';
-
     // Cuerpo de la snake
     for (i = 1; i < tam; i++)
     {
@@ -124,12 +123,14 @@ void Intro_Datos(char campo[V][H], int tam)
         snake[i].imagen = 'X';
     }
 
+    // Cabeza de la snake
+    snake[0].imagen = 'O';
+
     // Dibuja la snake en el campo
     for (i = 0; i < tam; i++)
     {
         campo[snake[i].y][snake[i].x] = snake[i].imagen;
     }
-
     // Dibuja la fruta en el campo
     campo[fruta.y][fruta.x] = '%';
 }
@@ -148,26 +149,28 @@ void draw(char campo[V][H])
     }
 }
 
-void loop(char campo[H][V], int tam)
+void loop(char campo[V][H], int tam)
 {
     int muerto;
     muerto = 0;
 
     do
     {
+        system("cls");
         draw(campo);
         input(campo, &tam, &muerto);
+        update(campo, tam);
     } while (muerto == 0);
 }
 
-void input(char campo[H][V], int *tam, int *muerto)
+void input(char campo[V][H], int *tam, int *muerto)
 {
     int i;
     char key;
 
     // Snake choca con un limite
     if (snake[0].x == 0 || snake[0].y == 0 ||
-        snake[0].x == H - 1 || snake[0].y == V - 1)
+        snake[0].x == H-1 || snake[0].y == V-1)
     {
         *muerto = 1;
     }
@@ -225,4 +228,32 @@ void input(char campo[H][V], int *tam, int *muerto)
             }
         }
     }
+}
+
+void update(char campo[V][H], int tam){
+    // Limpia la matriz
+    Intro_Campo(campo);
+
+    // Carga nuevas posiciones
+    Intro_Datos2(campo, tam);
+}
+
+void Intro_Datos2(char campo[V][H], int tam){
+    int i;
+
+    // Seguimiento del cuerpo
+    for (i = tam-1; i > 0; i--){
+        snake[i].x = snake[i-1].x;
+        snake[i].y = snake[i-1].y;
+    }
+
+    // Avance de la cabeza
+    snake[0].x += snake[0].ModX;
+    snake[0].y += snake[0].ModY;
+    for(i = 0; i < tam; i++){
+        campo[snake[i].y][snake[i].x] = snake[i].imagen;
+    }
+
+    // Fruta
+    campo[fruta.y][fruta.x] = '%';
 }
